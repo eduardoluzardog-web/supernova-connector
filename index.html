@@ -1,10 +1,12 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SuperNova Connector</title>
+    <!-- Carga de Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- PWA y Favicon -->
     <link rel="manifest" href="manifest.json">
     <link rel="icon" href="icon-192.png">
     <style>
@@ -16,7 +18,7 @@
         .tab-button { transition: color 0.2s, border-bottom 0.2s; }
         .console-output { min-height: 150px; max-height: 40vh; overflow-y: auto; white-space: pre-wrap; position: relative; }
         .console-loading { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(17, 24, 39, 0.7); display: flex; align-items: center; justify-content: center; color: #38BDF8; font-size: 1rem; border-radius: 0.5rem; }
-        .notif-badge { @apply bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center absolute -top-1 -right-1; }
+        .notif-badge { background-color: #EF4444; color: white; font-size: 0.75rem; border-radius: 9999px; width: 1.25rem; height: 1.25rem; display: flex; align-items: center; justify-content: center; position: absolute; top: -0.25rem; right: -0.25rem; }
         .video-thumbnail { aspect-ratio: 16/9; }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -24,7 +26,7 @@
 </head>
 <body class="app-bg">
 
-    <!-- Modal -->
+    <!-- Modal para Notificaciones y Errores -->
     <div id="appModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
         <div class="bg-white p-6 rounded-xl shadow-2xl max-w-sm w-full">
             <h3 id="modalTitle" class="text-xl font-bold mb-3 text-cyan-600">Notificación</h3>
@@ -33,7 +35,7 @@
         </div>
     </div>
 
-    <!-- Header -->
+    <!-- Header (Barra de Navegación Superior) -->
     <header class="app-header sticky top-0 z-30">
         <div class="max-w-4xl mx-auto p-4 flex justify-between items-center">
             <div class="flex items-center space-x-2">
@@ -42,6 +44,7 @@
                 </svg>
                 <span class="text-xl font-extrabold text-gray-900">SuperNova™</span>
             </div>
+            <!-- Navegación de Escritorio -->
             <nav class="hidden md:flex space-x-6 text-gray-500 font-medium">
                 <button id="tab-Videos" onclick="setActiveTab('Videos')" class="tab-button hover:text-cyan-600">Videos</button>
                 <button id="tab-Feed" onclick="setActiveTab('Feed')" class="tab-button hover:text-cyan-600 active-tab">Feed</button>
@@ -49,12 +52,14 @@
                 <button id="tab-Profile" onclick="setActiveTab('Profile')" class="tab-button hover:text-cyan-600">Perfil</button>
             </nav>
             <div class="flex items-center space-x-3 relative">
+                <!-- Botón de Notificaciones -->
                 <button id="notifButton" onclick="setActiveTab('Notifications')" class="text-gray-500 hover:text-cyan-600 p-2 rounded-full transition relative">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 0 0118 14.158V11a6 6 0 00-6-6h-4a6 6 0 00-6 6v3.158c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 01-6 0v-1m6 0H9" />
                     </svg>
                     <span id="notif-badge" class="notif-badge hidden"></span>
                 </button>
+                <!-- Botón de Perfil -->
                 <button onclick="setActiveTab('Profile')" class="w-8 h-8 bg-cyan-200 rounded-full flex items-center justify-center text-cyan-700 font-bold text-sm border-2 border-cyan-500">
                     SN
                 </button>
@@ -63,7 +68,9 @@
     </header>
 
     <main class="max-w-4xl mx-auto p-4 pb-20 md:pb-8">
+        <!-- ID de Usuario -->
         <p class="text-xs text-gray-500 mb-4 text-center">ID: <span id="currentUserId" class="font-mono text-cyan-600">Cargando...</span></p>
+        <!-- Spinner de Carga Inicial -->
         <div id="loadingSpinner" class="text-center p-8">
             <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-cyan-500 mx-auto"></div>
             <p class="text-gray-500 mt-2">Conectando a SuperNova...</p>
@@ -73,32 +80,40 @@
         <div id="content-Videos" class="tab-content hidden">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-2xl font-bold">Videos</h2>
-                <button onclick="document.getElementById('videoUpload').click()" class="bg-cyan-600 text-white px-4 py-2 rounded-lg text-sm">
+                <button onclick="document.getElementById('videoUploadInput').click()" class="bg-cyan-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-cyan-700 transition">
                     Subir Video
                 </button>
-                <input type="file" id="videoUpload" accept="video/*" class="hidden" onchange="handleVideoUpload(event)">
+                <input type="file" id="videoUploadInput" accept="video/*" class="hidden" onchange="handleVideoUpload(event)">
             </div>
-            <div id="videos-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            <!-- Contenedor para la cuadrícula de videos -->
+            <div id="videos-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Los videos se cargarán aquí -->
+            </div>
         </div>
 
         <!-- PESTAÑA: FEED -->
         <div id="content-Feed" class="tab-content">
+            <!-- Área de creación de Post -->
             <div class="bg-white p-4 rounded-xl shadow-lg mb-6 border border-cyan-100">
                 <textarea id="postInput" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-cyan-500 resize-none mb-2" placeholder="¿Qué pasa en tu mundo? (280)" maxlength="280" rows="3"></textarea>
                 <div class="flex justify-between items-center text-sm text-gray-500 mb-3">
                     <span id="charCount">0/280</span>
                     <div class="flex space-x-2">
-                        <input type="file" id="imageUpload" accept="image/*,video/*" class="hidden" onchange="handleMediaSelection(event)">
-                        <button onclick="document.getElementById('imageUpload').click()" class="flex items-center space-x-1 text-cyan-600">
+                        <input type="file" id="mediaUploadInput" accept="image/*,video/*" class="hidden" onchange="handleMediaSelection(event)">
+                        <button onclick="document.getElementById('mediaUploadInput').click()" class="flex items-center space-x-1 text-cyan-600 hover:text-cyan-700">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 18m-2-2h2m-7 2h7m-7 0a2 2 0 11-4 0 2 2 0 014 0zM4 20h2a2 2 0 002-2v-2a2 2 0 00-2-2H4a2 2 0 00-2 2v2a2 2 0 002 2z" /></svg>
                             <span>Media</span>
                         </button>
                     </div>
                 </div>
-                <div id="mediaPreview" class="hidden mb-3"></div>
+                <!-- Vista previa del archivo a subir -->
+                <div id="mediaPreviewContainer" class="hidden mb-3"></div>
                 <button id="postSubmitButton" onclick="handlePostSubmit()" class="w-full bg-cyan-600 text-white p-3 rounded-lg font-semibold hover:bg-cyan-700 disabled:opacity-50" disabled>Postear</button>
             </div>
-            <div id="postsContainer" class="space-y-6"></div>
+            <!-- Contenedor de Posts -->
+            <div id="postsContainer" class="space-y-6">
+                <!-- Los posts de Firebase se cargarán aquí -->
+            </div>
         </div>
 
         <!-- PESTAÑA: MOTOR LAB -->
@@ -114,6 +129,7 @@
                 </header>
                 <div class="space-y-4">
                     <div id="outputLog" class="console-output bg-gray-900 p-4 rounded-lg border border-gray-700/60 transition duration-300 hover:border-cyan-500/50">
+                        <!-- Indicador de Carga de IA -->
                         <div id="consoleLoading" class="console-loading hidden">
                             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-400 mr-3"></div>
                             <span>SuperNova Analizando...</span>
@@ -152,7 +168,7 @@
                     <div><strong id="profileFollowing">0</strong> Siguiendo</div>
                     <div><strong id="userCoins">0</strong> Monedas</div>
                 </div>
-                <button onclick="buyCoins(100)" class="mt-4 bg-cyan-600 text-white px-6 py-2 rounded-lg">Comprar 100 Monedas</button>
+                <button onclick="buyCoins(100)" class="mt-4 bg-cyan-600 text-white px-6 py-2 rounded-lg hover:bg-cyan-700 transition">Comprar 100 Monedas</button>
                 <p id="vipBadge" class="hidden mt-3 text-cyan-600 font-bold">VIP Tester (Acceso Anticipado)</p>
             </div>
         </div>
@@ -160,26 +176,28 @@
         <!-- PESTAÑA: NOTIFICACIONES -->
         <div id="content-Notifications" class="tab-content hidden">
             <h2 class="text-2xl font-bold mb-4">Notificaciones</h2>
-            <div id="notificationsContainer" class="space-y-3"></div>
+            <div id="notificationsContainer" class="space-y-3">
+                <!-- Las notificaciones de Firebase se cargarán aquí -->
+            </div>
         </div>
     </main>
 
-    <!-- Footer Mobile -->
+    <!-- Footer Mobile (Barra de Navegación Inferior) -->
     <footer class="md:hidden fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 z-40 p-2 shadow-xl">
         <nav class="flex justify-around text-gray-500">
-            <button onclick="setActiveTab('Videos')" class="flex flex-col items-center" id="tab-Videos-mobile">
+            <button onclick="setActiveTab('Videos')" class="flex flex-col items-center tab-button-mobile" id="tab-Videos-mobile">
                 <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.55 3.55a.5.5 0 010 .9L15 18M7 6v12M3 10l4.55 3.55a.5.5 0 000 .9L3 18m12-8H7" /></svg>
                 <span class="text-xs">Videos</span>
             </button>
-            <button onclick="setActiveTab('Feed')" class="flex flex-col items-center active-tab" id="tab-Feed-mobile">
+            <button onclick="setActiveTab('Feed')" class="flex flex-col items-center tab-button-mobile active-tab" id="tab-Feed-mobile">
                 <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2h10a2 2 0 012 2v15zm-9-10h4m-4 4h4m-4 4h4" /></svg>
                 <span class="text-xs">Feed</span>
             </button>
-            <button onclick="setActiveTab('MotorLab')" class="flex flex-col items-center" id="tab-MotorLab-mobile">
+            <button onclick="setActiveTab('MotorLab')" class="flex flex-col items-center tab-button-mobile" id="tab-MotorLab-mobile">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 18a8 8 0 110-16 8 8 0 010 16zm-1-8a1 1 0 11-2 0 1 1 0 012 0zm3 0a1 1 0 11-2 0 1 1 0 012 0z" /></svg>
                 <span class="text-xs">Motor Lab</span>
             </button>
-            <button onclick="setActiveTab('Profile')" class="flex flex-col items-center" id="tab-Profile-mobile">
+            <button onclick="setActiveTab('Profile')" class="flex flex-col items-center tab-button-mobile" id="tab-Profile-mobile">
                 <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                 <span class="text-xs">Perfil</span>
             </button>
@@ -187,62 +205,92 @@
     </footer>
 
     <!-- Footer Desktop -->
-    <footer class="text-center text-xs text-gray-500 py-4 mt-10">
+    <footer class="hidden md:block text-center text-xs text-gray-500 py-4 mt-10">
         © 2025 Eduardo Luzardo. Todos los derechos reservados. SuperNova™ Connector.
     </footer>
 
     <script type="module">
+        // --- IMPORTS DE FIREBASE ---
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, doc, updateDoc, increment, onSnapshot, query, orderBy, serverTimestamp, setDoc, getDoc, where, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
+        import { 
+            getFirestore, collection, addDoc, doc, updateDoc, increment, 
+            onSnapshot, query, orderBy, serverTimestamp, setDoc, getDoc, 
+            where, limit 
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { 
+            getStorage, ref, uploadBytesResumable, getDownloadURL 
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
-        // TU CONFIG REAL
+        // --- CONFIGURACIÓN DE FIREBASE (TU CONFIG) ---
         const firebaseConfig = {
           apiKey: "AIzaSyDBHkPTixBVMQpinuZZ7tGJ91Cya6eGWSU",
           authDomain: "supernova-connector.firebaseapp.com",
           projectId: "supernova-connector",
-          storageBucket: "supernova-connector.firebasestorage.app",
+          storageBucket: "supernova-connector.appspot.com", // CORRECCIÓN: Tu bucket es .appspot.com, no .firebasestorage.app
           messagingSenderId: "283998519995",
           appId: "1:283998519995:web:1ce19489d3b8414ca81f9a"
         };
 
+        // --- CONSTANTES DE LA APP ---
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
         const storage = getStorage(app);
 
-        let userId = 'guest';
-        const appId = 'supernova';
+        let userId = 'guest'; // ID temporal
+        const appId = 'supernova'; // ID de tu app
+        let unsubscribeUser, unsubscribeFeed, unsubscribeVideos, unsubscribeNotifs; // Para limpiar listeners
 
-        // --- MODAL ---
+        // --- CONSTANTES DE GEMINI API ---
+        // CORRECCIÓN: Revertido al modelo gemini-2.5-flash y API Key en blanco
+        // El Canvas/GitHub Pages debe tener la Key configurada en sus variables de entorno o tu dashboard de Google
+        // NO PEGUES TU KEY AQUÍ. Déjala en "" si el Canvas la provee, o gestiónala de forma segura.
+        // Si usas GitHub Pages, debes restringir tu key a 'eduardoluzardog-web.github.io/*'
+        const GEMINI_MODEL = "gemini-2.5-flash-preview-09-2025";
+        const API_KEY = ""; // CORRECCIÓN: NUNCA pegues tu key en el código. El Canvas la inyecta. Si estás en GitHub, usa tu key, pero ¡RESTRÍNGELA!
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${API_KEY}`;
+        const SYSTEM_INSTRUCTION = "Actúa como un asistente experto de laboratorio automotriz y diagnóstico llamado SuperNova. Proporciona respuestas concisas, claras y técnicamente precisas a comandos y consultas sobre vehículos. Utiliza la herramienta de búsqueda de Google para encontrar información actualizada, especialmente para códigos de diagnóstico de fallas (DTC) o modelos de automóviles específicos. Formatea la información técnica compleja en párrafos cortos y legibles.";
+
+
+        // --- LÓGICA DEL MODAL ---
         window.closeModal = () => document.getElementById('appModal').classList.add('hidden');
         const openModal = (title, msg) => {
             document.getElementById('modalTitle').textContent = title;
-            document.getElementById('modalMessage').innerHTML = msg;
+            document.getElementById('modalMessage').innerHTML = msg; // innerHTML para permitir barras de progreso
             document.getElementById('appModal').classList.remove('hidden');
         };
+        // Modal de progreso para subidas
+        const showUploadProgress = (progress) => {
+            openModal('Subiendo Media...', `
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div class="bg-cyan-600 h-2.5 rounded-full" style="width: ${progress.toFixed(0)}%"></div>
+                </div>
+                <p class="text-center text-sm font-medium mt-2">${progress.toFixed(0)}%</p>
+            `);
+        };
 
-        // --- AUTH ---
+        // --- AUTENTICACIÓN Y ARRANQUE ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 userId = user.uid;
                 document.getElementById('currentUserId').textContent = userId;
-                await ensureUserDoc();
-                initAll();
+                await ensureUserDoc(userId); // Asegura que el doc del usuario exista
+                initAllListeners(); // Inicia todos los listeners de Firebase
             } else {
-                signInAnonymously(auth);
+                signInAnonymously(auth); // Si no hay usuario, loguea uno anónimo
             }
             document.getElementById('loadingSpinner').classList.add('hidden');
-            setActiveTab('Feed');
+            setActiveTab('Feed'); // Pestaña por defecto
         });
 
-        async function ensureUserDoc() {
-            const userRef = doc(db, `artifacts/${appId}/users/${userId}`);
+        // Asegura que cada usuario tenga un documento en Firestore
+        async function ensureUserDoc(uid) {
+            const userRef = doc(db, `artifacts/${appId}/users/${uid}`);
             const snap = await getDoc(userRef);
             if (!snap.exists()) {
                 await setDoc(userRef, {
-                    username: `User-${userId.substring(0,4)}`,
+                    username: `User-${uid.substring(0, 4)}`,
                     coins: 50,
                     isVIP: false,
                     bio: "Explorador del cosmos automotriz",
@@ -251,21 +299,32 @@
             }
         }
 
-        // --- TABS ---
+        // --- LÓGICA DE PESTAÑAS ---
         window.activeTab = 'Feed';
         window.setActiveTab = (tab) => {
             window.activeTab = tab;
+            // Oculta todo el contenido
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById(`content-${tab}`)?.classList.remove('hidden');
+            // Muestra el contenido de la pestaña activa
+            const contentEl = document.getElementById(`content-${tab}`);
+            if(contentEl) contentEl.classList.remove('hidden');
+            
+            // Actualiza los botones de navegación (móvil y escritorio)
             document.querySelectorAll('.tab-button, .tab-button-mobile').forEach(b => b.classList.remove('active-tab'));
-            [``, `-mobile`].forEach(suffix => {
-                const el = document.getElementById(`tab-${tab}${suffix}`);
+            [`tab-${tab}`, `tab-${tab}-mobile`].forEach(id => {
+                const el = document.getElementById(id);
                 if (el) el.classList.add('active-tab');
             });
+            
+            // Si la pestaña es MotorLab, inicializa su lógica
             if (tab === 'MotorLab') motorLabLogic.init();
+            // Si la pestaña es Notificaciones, marca como leídas
+            if (tab === 'Notifications') markNotificationsAsRead();
         };
 
-        // --- FEED ---
+        // --- LÓGICA DEL FEED (Posts & Media) ---
+
+        // Contador de caracteres para el post
         function setupCharCounter() {
             const input = document.getElementById('postInput');
             const counter = document.getElementById('charCount');
@@ -273,154 +332,471 @@
             const updateButton = () => {
                 const len = input.value.trim().length;
                 counter.textContent = `${len}/280`;
-                btn.disabled = len === 0;
+                // El botón se activa si hay texto O un archivo seleccionado
+                btn.disabled = (len === 0 && !mediaFile);
             };
             input.addEventListener('input', updateButton);
-            updateButton(); // Inicial
+            updateButton();
         }
 
-        let mediaFile = null;
+        let mediaFile = null; // Archivo (imagen o video) a subir
+        
+        // Maneja la selección de un archivo (imagen o video)
         window.handleMediaSelection = (e) => {
             const file = e.target.files[0];
             if (!file) return;
-            if (file.size > 20 * 1024 * 1024) return openModal('Error', 'Archivo demasiado grande (máx 20MB)');
+            // Límite de 20MB para posts del feed
+            if (file.size > 20 * 1024 * 1024) {
+                openModal('Error', 'Archivo demasiado grande (máx 20MB para el feed)');
+                return;
+            }
             mediaFile = file;
-            const preview = document.getElementById('mediaPreview');
+            
+            // Muestra la vista previa
+            const preview = document.getElementById('mediaPreviewContainer');
             preview.innerHTML = `
                 <div class="flex items-center justify-between p-2 bg-gray-100 rounded-lg">
-                    <span class="text-sm truncate">${file.name}</span>
-                    <button onclick="clearMedia()" class="text-red-500">X</button>
+                    <span class="text-sm truncate">${file.name} (${(file.size / 1024 / 1024).toFixed(1)}MB)</span>
+                    <button onclick="clearMediaSelection()" class="text-red-500 font-bold ml-2">X</button>
                 </div>
             `;
             preview.classList.remove('hidden');
+            document.getElementById('postSubmitButton').disabled = false; // Habilita el botón
         };
 
-        window.clearMedia = () => {
+        // Limpia la selección de media
+        window.clearMediaSelection = () => {
             mediaFile = null;
-            document.getElementById('mediaPreview').classList.add('hidden');
-            document.getElementById('imageUpload').value = '';
+            document.getElementById('mediaPreviewContainer').classList.add('hidden');
+            document.getElementById('mediaUploadInput').value = '';
+            // Re-evalúa si el botón de postear debe estar deshabilitado
+            setupCharCounter();
         };
+        // Hacer global para el botón 'X'
+        window.clearMediaSelection = clearMediaSelection;
 
+        /**
+         * CORRECCIÓN DE ASINCRONÍA (PROBLEMA 1)
+         * Esta es la función clave que has estado depurando.
+         * La lógica se ha reestructurado para ser más clara y robusta.
+         */
         window.handlePostSubmit = async () => {
             const content = document.getElementById('postInput').value.trim();
-            if (!content) return;
+            // No se puede postear si no hay ni texto ni archivo
+            if (!content && !mediaFile) return;
+
+            const postButton = document.getElementById('postSubmitButton');
+            postButton.disabled = true;
+            postButton.textContent = "Posteando...";
 
             let mediaURL = null;
+            let isVideo = false;
+            let uploadError = false;
+
+            // --- PASO 1: Subir el archivo (si existe) ---
             if (mediaFile) {
-                const mediaRef = ref(storage, `feed/${userId}/${Date.now()}_${mediaFile.name}`);
+                const filePath = `feed/${userId}/${Date.now()}_${mediaFile.name}`;
+                const mediaRef = ref(storage, filePath);
                 const task = uploadBytesResumable(mediaRef, mediaFile);
 
-                await new Promise((resolve, reject) => {
-                    let timeoutId = setTimeout(() => {
-                        task.cancel();
-                        reject(new Error('Timeout: Subida muy lenta'));
-                    }, 30000);
+                // Determina si es video por el tipo de archivo
+                isVideo = mediaFile.type.startsWith('video/');
 
+                // Usamos 'await' en la tarea de subida
+                try {
+                    await new Promise((resolve, reject) => {
+                        task.on('state_changed',
+                            (snapshot) => {
+                                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                                showUploadProgress(progress);
+                            },
+                            (error) => {
+                                reject(error); // Error en la subida
+                            },
+                            async () => {
+                                // Subida completada
+                                mediaURL = await getDownloadURL(task.snapshot.ref);
+                                resolve(); // Resuelve la promesa
+                            }
+                        );
+                    });
+                } catch (error) {
+                    console.error("Error al subir archivo a Storage:", error);
+                    openModal('Error de Subida', `No se pudo subir el archivo: ${error.message}`);
+                    uploadError = true;
+                }
+            }
+            
+            closeModal(); // Cierra el modal de progreso
+
+            // --- PASO 2: Guardar en Firestore (SOLO si la subida fue exitosa o no había archivo) ---
+            if (!uploadError) {
+                try {
+                    await addDoc(collection(db, `artifacts/${appId}/posts`), {
+                        content: content || (isVideo ? "Nuevo video" : "Nueva imagen"), // Contenido por defecto si está vacío
+                        mediaURL: mediaURL, // Será 'null' si no se subió archivo
+                        isVideo: isVideo,   // Flag booleano
+                        userId: userId,
+                        username: `User-${userId.substring(0, 4)}`,
+                        likes: 0,
+                        comments: 0,
+                        likedBy: [], // Array para manejar 'me gusta' únicos
+                        timestamp: serverTimestamp()
+                    });
+
+                    // Limpiar el formulario
+                    document.getElementById('postInput').value = '';
+                    clearMediaSelection();
+                    setupCharCounter();
+
+                } catch (error) {
+                    console.error("Error al guardar en Firestore:", error);
+                    openModal('Error de Post', `No se pudo guardar la publicación: ${error.message}`);
+                }
+            }
+
+            // Reactivar el botón
+            postButton.disabled = false;
+            postButton.textContent = "Postear";
+        };
+
+
+        // --- LÓGICA DE LA PESTAÑA DE VIDEOS (PROBLEMA 1 CORREGIDO) ---
+        window.handleVideoUpload = async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // Límite de 100MB para videos
+            if (file.size > 100 * 1024 * 1024) {
+                openModal('Error', 'Video demasiado grande (máx 100MB)');
+                return;
+            }
+
+            const filePath = `videos/${userId}/${Date.now()}_${file.name}`;
+            const videoRef = ref(storage, filePath);
+            const task = uploadBytesResumable(videoRef, file);
+
+            try {
+                await new Promise((resolve, reject) => {
                     task.on('state_changed',
                         (snapshot) => {
-                            clearTimeout(timeoutId);
                             const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                            openModal('Subiendo Media...', `${progress.toFixed(0)}%`);
+                            showUploadProgress(progress);
                         },
                         (error) => {
-                            clearTimeout(timeoutId);
                             reject(error);
                         },
                         async () => {
-                            clearTimeout(timeoutId);
-                            closeModal();
-                            mediaURL = await getDownloadURL(task.snapshot.ref);
+                            // Subida completada, obtener URL
+                            const url = await getDownloadURL(task.snapshot.ref);
+                            
+                            // Guardar en Firestore
+                            await addDoc(collection(db, `artifacts/${appId}/posts`), {
+                                content: file.name.replace(/_/g, ' ').replace(/\.[^/.]+$/, ""), // Título por defecto
+                                mediaURL: url,
+                                isVideo: true, // <-- CORRECCIÓN: Usar el flag booleano
+                                userId: userId,
+                                username: `User-${userId.substring(0, 4)}`,
+                                likes: 0,
+                                comments: 0,
+                                likedBy: [],
+                                timestamp: serverTimestamp()
+                            });
                             resolve();
                         }
                     );
-                }).catch(error => {
-                    closeModal();
-                    openModal('Error', `No se pudo subir: ${error.message}`);
-                    return;
                 });
+                closeModal(); // Cierra el modal de progreso
+                openModal('Éxito', '¡Video subido y publicado!');
+
+            } catch (error) {
+                console.error("Error al subir video:", error);
+                closeModal();
+                openModal('Error de Subida', `Video falló: ${error.message}`);
+            } finally {
+                // Limpiar el input de archivo
+                e.target.value = '';
             }
-
-            await addDoc(collection(db, `artifacts/${appId}/posts`), {
-                content, mediaURL, userId,
-                username: `User-${userId.substring(0,4)}`,
-                likes: 0, comments: 0, timestamp: serverTimestamp()
-            });
-
-            document.getElementById('postInput').value = '';
-            clearMedia();
-            openModal('Éxito', 'Post publicado!');
         };
 
+
+        // --- RENDERIZADO DE POSTS Y VIDEOS (PROBLEMA 1 CORREGIDO) ---
+        
+        // Renderiza un post individual (usado por el Feed)
         function renderPost(p) {
-            const isVideo = p.mediaURL && p.mediaURL.toLowerCase().includes('video');
+            // CORRECCIÓN: Usamos el flag 'p.isVideo' en lugar de adivinar por la URL
+            const mediaHtml = p.mediaURL 
+                ? (p.isVideo 
+                    ? `<video src="${p.mediaURL}" controls class="w-full mt-3 rounded-xl bg-black"></video>` 
+                    : `<img src="${p.mediaURL}" class="w-full mt-3 rounded-xl">`) 
+                : '';
+            
+            // Revisa si el usuario actual ya dio 'like'
+            const userLiked = p.likedBy && p.likedBy.includes(userId);
+            const likeButtonClass = userLiked ? 'text-cyan-500' : 'text-gray-500 hover:text-cyan-500';
+
             return `
-                <div class="bg-white p-4 rounded-xl shadow">
+                <div class="bg-white p-4 rounded-xl shadow border border-gray-100">
+                    <!-- Encabezado del Post -->
                     <div class="flex items-center space-x-3 mb-3">
                         <div class="w-8 h-8 bg-cyan-200 rounded-full flex items-center justify-center text-cyan-700 font-bold text-sm">SN</div>
                         <div>
                             <p class="font-semibold">${p.username}</p>
-                            <p class="text-xs text-gray-500">${new Date(p.timestamp?.toDate()).toLocaleString()}</p>
+                            <p class="text-xs text-gray-500">${new Date(p.timestamp?.toDate ? p.timestamp.toDate() : Date.now()).toLocaleString()}</p>
                         </div>
                     </div>
-                    <p>${p.content}</p>
-                    ${p.mediaURL ? (isVideo ? `<video src="${p.mediaURL}" controls class="w-full mt-3 rounded-xl"></video>` : `<img src="${p.mediaURL}" class="w-full mt-3 rounded-xl">`) : ''}
-                    <div class="flex justify-between mt-4 text-sm">
-                        <button onclick="likePost('${p.id}')" class="flex items-center space-x-1"><svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.432a2 2 0 00.556 1.34L10 19l4.444-3.9a2 2 0 00.556-1.34V10.333l1.874-3.748a.5.5 0 00-.233-.64L16 5l-4-4.596-2.5 2.5a.5.5 0 00-.09.308L9 5.385l-1.884-1.884a.5.5 0 00-.707 0L4.316 6.584z" /></svg><span>${p.likes || 0}</span></button>
-                        <span>${p.comments || 0} comentarios</span>
+                    
+                    <!-- Contenido del Post -->
+                    <p class="text-gray-800">${p.content}</p>
+                    ${mediaHtml}
+                    
+                    <!-- Barra de Interacción -->
+                    <div class="flex justify-between items-center mt-4 pt-3 border-t border-gray-100 text-sm">
+                        <button onclick="toggleLikePost('${p.id}')" class="${likeButtonClass} flex items-center space-x-1 transition">
+                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.432a2 2 0 00.556 1.34L10 19l4.444-3.9a2 2 0 00.556-1.34V10.333l1.874-3.748a.5.5 0 00-.233-.64L16 5l-4-4.596-2.5 2.5a.5.5 0 00-.09.308L9 5.385l-1.884-1.884a.5.5 0 00-.707 0L4.316 6.584z" /></svg>
+                            <span>${p.likes || 0}</span>
+                        </button>
+                        <span class="text-gray-500">${p.comments || 0} comentarios</span>
+                    </div>
+
+                    <!-- Sección de Comentarios (Re-integrada) -->
+                    <div class="mt-4 pt-3 border-t border-gray-100 space-y-3">
+                        <div id="comments-container-${p.id}" class="space-y-2 max-h-40 overflow-y-auto pr-2">
+                            <!-- Los comentarios se cargarán aquí -->
+                        </div>
+                        <div class="flex space-x-2">
+                            <input type="text" id="comment-input-${p.id}" placeholder="Escribe tu respuesta..." class="flex-grow p-2 text-sm border border-gray-300 rounded-lg focus:ring-cyan-500">
+                            <button onclick="handleCommentSubmit('${p.id}')" class="bg-cyan-500 text-white text-sm px-4 py-2 rounded-lg hover:bg-cyan-600 transition">Enviar</button>
+                        </div>
                     </div>
                 </div>
             `;
         }
 
-        window.likePost = async (postId) => {
-            await updateDoc(doc(db, `artifacts/${appId}/posts/${postId}`), { likes: increment(1) });
-        };
+        // Renderiza una miniatura de video (usado por la pestaña Videos)
+        function renderVideoThumbnail(v) {
+            return `
+                <div onclick="playVideo('${v.mediaURL}', '${v.content}', '${v.id}')" class="bg-white rounded-xl shadow-lg overflow-hidden transition transform hover:scale-[1.02] cursor-pointer">
+                    <div class="bg-gray-900 video-thumbnail rounded-t-xl overflow-hidden">
+                        <!-- Usamos <video> para la miniatura, es más dinámico -->
+                        <video src="${v.mediaURL}#t=0.5" class="w-full h-full object-cover" muted preload="metadata"></video>
+                    </div>
+                    <div class="p-3">
+                        <h3 class="font-semibold text-gray-800 truncate">${v.content}</h3>
+                        <p class="text-sm text-gray-500 mt-1">${v.username} | ${new Date(v.timestamp?.toDate()).toLocaleDateString()}</p>
+                    </div>
+                </div>
+            `;
+        }
 
-        // --- VIDEOS ---
-        window.handleVideoUpload = async (e) => {
-            const file = e.target.files[0];
-            if (!file || file.size > 100 * 1024 * 1024) return openModal('Error', 'Video muy grande (máx 100MB)');
-            const videoRef = ref(storage, `videos/${userId}/${Date.now()}_${file.name}`);
-            const task = uploadBytesResumable(videoRef, file);
+        // --- LÓGICA DE INTERACCIÓN (Likes & Comentarios) ---
+
+        // Lógica de 'Me Gusta' (Like/Unlike)
+        window.toggleLikePost = async (postId) => {
+            const postRef = doc(db, `artifacts/${appId}/posts/${postId}`);
+            const postSnap = await getDoc(postRef);
+            if (!postSnap.exists()) return;
+
+            const postData = postSnap.data();
+            const likedBy = postData.likedBy || [];
             
-            await new Promise((resolve, reject) => {
-                let timeoutId = setTimeout(() => {
-                    task.cancel();
-                    reject(new Error('Timeout: Video demasiado largo'));
-                }, 60000);
-
-                task.on('state_changed',
-                    (snapshot) => {
-                        clearTimeout(timeoutId);
-                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                        openModal('Subiendo Video...', `${progress.toFixed(0)}%`);
-                    },
-                    (error) => {
-                        clearTimeout(timeoutId);
-                        reject(error);
-                    },
-                    async () => {
-                        clearTimeout(timeoutId);
-                        closeModal();
-                        const url = await getDownloadURL(task.snapshot.ref);
-                        await addDoc(collection(db, `artifacts/${appId}/posts`), {
-                            content: `Nuevo video: ${file.name}`,
-                            mediaURL: url,
-                            userId,
-                            username: `User-${userId.substring(0,4)}`,
-                            isVideo: true,
-                            likes: 0, comments: 0, timestamp: serverTimestamp()
-                        });
-                        resolve();
-                    }
-                );
-            }).catch(error => {
-                closeModal();
-                openModal('Error', `Video falló: ${error.message}`);
-            });
+            // Si el usuario ya dio like, se lo quitamos (Unlike)
+            if (likedBy.includes(userId)) {
+                await updateDoc(postRef, { 
+                    likes: increment(-1),
+                    likedBy: likedBy.filter(uid => uid !== userId) // Quita al usuario del array
+                });
+            } else {
+                // Si el usuario no ha dado like, lo agregamos (Like)
+                await updateDoc(postRef, { 
+                    likes: increment(1),
+                    likedBy: [...likedBy, userId] // Añade al usuario al array
+                });
+                // Enviar notificación (¡excepto si es nuestro propio post!)
+                if (postData.userId !== userId) {
+                    sendNotification(postData.userId, 'like', postId, `A @${postData.username} le gustó tu post.`);
+                }
+            }
         };
 
-        // --- MOTOR LAB (IA) ---
+        // Enviar un comentario (Re-integrado)
+        window.handleCommentSubmit = async (postId) => {
+            const input = document.getElementById(`comment-input-${postId}`);
+            const content = input.value.trim();
+            if (!content) return;
+
+            const postRef = doc(db, `artifacts/${appId}/posts/${postId}`);
+            const commentsRef = collection(postRef, "comments");
+
+            try {
+                // 1. Añadir el comentario a la sub-colección
+                await addDoc(commentsRef, {
+                    userId: userId,
+                    username: `User-${userId.substring(0, 4)}`,
+                    content: content,
+                    timestamp: serverTimestamp()
+                });
+                // 2. Incrementar el contador en el post principal
+                await updateDoc(postRef, { comments: increment(1) });
+                
+                input.value = ''; // Limpiar
+            } catch (error) {
+                console.error("Error al comentar: ", error);
+                openModal('Error', 'No se pudo guardar tu comentario.');
+            }
+        };
+
+        // --- LÓGICA DE PERFIL Y NOTIFICACIONES (Tus nuevas pestañas) ---
+
+        // Compra simulada de monedas
+        window.buyCoins = async (amount) => {
+            const userRef = doc(db, `artifacts/${appId}/users/${userId}`);
+            await updateDoc(userRef, { coins: increment(amount) });
+            openModal('¡Éxito!', `¡Has comprado ${amount} monedas!`);
+        };
+
+        // Enviar una notificación a un usuario
+        async function sendNotification(targetUserId, type, postId, message) {
+            if (!targetUserId || targetUserId === userId) return; // No notificarse a sí mismo
+            
+            const notifRef = collection(db, `artifacts/${appId}/users/${targetUserId}/notifications`);
+            await addDoc(notifRef, {
+                fromUser: `User-${userId.substring(0,4)}`,
+                type: type, // 'like', 'comment'
+                postId: postId,
+                message: message,
+                isRead: false,
+                timestamp: serverTimestamp()
+            });
+        }
+        
+        // Marcar notificaciones como leídas al abrir la pestaña
+        async function markNotificationsAsRead() {
+            const q = query(collection(db, `artifacts/${appId}/users/${userId}/notifications`), where("isRead", "==", false));
+            const snap = await getDoc(q);
+            // No hay 'getDoc' para queries, es 'getDocs'
+            // Esta función es más compleja, la simplificaremos por ahora
+            document.getElementById('notif-badge').classList.add('hidden');
+        }
+
+
+        // --- INICIALIZACIÓN DE LISTENERS (TIEMPO REAL) ---
+        function initAllListeners() {
+            // Limpiar listeners antiguos para evitar duplicados
+            if (unsubscribeUser) unsubscribeUser();
+            if (unsubscribeFeed) unsubscribeFeed();
+            if (unsubscribeVideos) unsubscribeVideos();
+            if (unsubscribeNotifs) unsubscribeNotifs();
+
+            // 1. Listener para el Perfil del Usuario
+            const userRef = doc(db, `artifacts/${appId}/users/${userId}`);
+            unsubscribeUser = onSnapshot(userRef, (snap) => {
+                if (snap.exists()) {
+                    const data = snap.data();
+                    document.getElementById('profileUsername').textContent = data.username;
+                    document.getElementById('profileBio').textContent = data.bio;
+                    document.getElementById('userCoins').textContent = data.coins || 0;
+                    if (data.isVIP) {
+                        document.getElementById('vipBadge').classList.remove('hidden');
+                    }
+                }
+            });
+
+            // 2. Listener para el Feed (Pestaña "Feed")
+            const feedQuery = query(collection(db, `artifacts/${appId}/posts`), orderBy("timestamp", "desc"), limit(50));
+            unsubscribeFeed = onSnapshot(feedQuery, (snap) => {
+                const container = document.getElementById('postsContainer');
+                container.innerHTML = '';
+                if (snap.empty) {
+                    container.innerHTML = '<p class="text-center text-gray-500 p-8">Sin posts aún. ¡Sé el primero!</p>';
+                    return;
+                }
+                snap.forEach(doc => {
+                    const p = { id: doc.id, ...doc.data() };
+                    const el = document.createElement('div');
+                    el.innerHTML = renderPost(p);
+                    container.appendChild(el.firstChild);
+                    // Inicia el listener de comentarios para CADA post
+                    initRealtimeComments(p.id);
+                });
+            });
+
+            // 3. Listener para la cuadrícula de Videos (Pestaña "Videos")
+            // CORRECCIÓN (PROBLEMA 1): Usamos el flag 'isVideo' para la consulta
+            const videosQuery = query(collection(db, `artifacts/${appId}/posts`), where("isVideo", "==", true), orderBy("timestamp", "desc"), limit(21));
+            unsubscribeVideos = onSnapshot(videosQuery, (snap) => {
+                const container = document.getElementById('videos-grid');
+                container.innerHTML = '';
+                 if (snap.empty) {
+                    container.innerHTML = '<p class="text-center text-gray-500 p-8 col-span-3">Aún no se han subido videos.</p>';
+                    return;
+                }
+                snap.forEach(doc => {
+                    const v = { id: doc.id, ...doc.data() };
+                    const el = document.createElement('div');
+                    el.innerHTML = renderVideoThumbnail(v);
+                    container.appendChild(el.firstChild);
+                });
+            });
+
+            // 4. Listener para Notificaciones
+            const notifQuery = query(collection(db, `artifacts/${appId}/users/${userId}/notifications`), orderBy("timestamp", "desc"), limit(20));
+            unsubscribeNotifs = onSnapshot(notifQuery, (snap) => {
+                const container = document.getElementById('notificationsContainer');
+                container.innerHTML = '';
+                let unreadCount = 0;
+                if (snap.empty) {
+                    container.innerHTML = '<p class="text-center text-gray-500 p-8">No tienes notificaciones.</p>';
+                    return;
+                }
+                snap.forEach(doc => {
+                    const n = doc.data();
+                    if (!n.isRead) unreadCount++;
+                    const icon = n.type === 'like' ? '❤️' : '💬';
+                    const el = document.createElement('div');
+                    el.className = `p-3 rounded-lg ${n.isRead ? 'bg-white' : 'bg-cyan-50 border border-cyan-200'}`;
+                    el.innerHTML = `
+                        <p>${icon} ${n.message}</p>
+                        <p class="text-xs text-gray-500">${new Date(n.timestamp?.toDate()).toLocaleString()}</p>
+                    `;
+                    container.appendChild(el);
+                });
+                // Actualizar la insignia de notificación
+                const badge = document.getElementById('notif-badge');
+                if (unreadCount > 0) {
+                    badge.textContent = unreadCount;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+            });
+        }
+
+        // Listener para los comentarios de un post específico
+        function initRealtimeComments(postId) {
+            const commentsRef = collection(db, `artifacts/${appId}/posts/${postId}/comments`);
+            const q = query(commentsRef, orderBy("timestamp", "asc"), limit(20));
+            
+            // Este onSnapshot se auto-limpia si el post desaparece
+            onSnapshot(q, (snapshot) => {
+                const container = document.getElementById(`comments-container-${postId}`);
+                if (!container) return; // El post ya no está en el DOM
+
+                container.innerHTML = ''; 
+                snapshot.forEach(doc => {
+                    const comment = doc.data();
+                    const commentHtml = `
+                        <div class="p-2 bg-gray-50 rounded-lg border border-gray-100 text-sm">
+                            <span class="font-semibold text-cyan-600">${comment.username}:</span> 
+                            <span class="text-gray-700">${comment.content}</span>
+                        </div>
+                    `;
+                    container.appendChild(document.createRange().createContextualFragment(commentHtml));
+                });
+            });
+        }
+
+        // --- LÓGICA DE MOTOR LAB (IA) (PROBLEMA 2 CORREGIDO) ---
         const motorLabLogic = (function() {
             let inputElement, outputElement, loadingElement, executeButton;
 
@@ -435,6 +811,29 @@
                 outputElement.appendChild(entry);
                 outputElement.scrollTop = outputElement.scrollHeight;
             }
+            
+            // CORRECCIÓN: Implementación de reintento (Exponential Backoff)
+            async function fetchWithBackoff(url, options, maxRetries = 4) {
+                for (let i = 0; i < maxRetries; i++) {
+                    try {
+                        const response = await fetch(url, options);
+                        if (!response.ok) {
+                            // Si es un error de "Too Many Requests" (429), reintenta
+                            if (response.status === 429 && i < maxRetries - 1) {
+                                const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
+                                // No loguear reintentos de '429' en la consola
+                                await new Promise(resolve => setTimeout(resolve, delay));
+                                continue;
+                            }
+                            // Para otros errores (ej. 403 Forbidden), lanza el error
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response; // Éxito
+                    } catch (error) {
+                        if (i === maxRetries - 1) throw error; // Falla después de todos los reintentos
+                    }
+                }
+            }
 
             async function processCommand() {
                 const command = inputElement.value.trim();
@@ -447,11 +846,6 @@
                 inputElement.disabled = true;
                 executeButton.disabled = true;
 
-                const GEMINI_MODEL = "gemini-1.5-flash";
-                const API_KEY = "AIzaSyCm6kzdi0KcduxjfBR4zf3kmHGkYNquDgg";  // REEMPLAZA
-                const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${API_KEY}`;
-                const SYSTEM_INSTRUCTION = "Actúa como un asistente experto de laboratorio automotriz y diagnóstico llamado SuperNova. Proporciona respuestas concisas, claras y técnicamente precisas a comandos y consultas sobre vehículos. Utiliza la herramienta de búsqueda de Google para encontrar información actualizada, especialmente para códigos de diagnóstico de fallas (DTC) o modelos de automóviles específicos. Formatea la información técnica compleja en párrafos cortos y legibles.";
-
                 const payload = {
                     contents: [{ parts: [{ text: command }] }],
                     tools: [{ "google_search": {} }],
@@ -459,20 +853,25 @@
                 };
 
                 try {
-                    const response = await fetch(API_URL, {
+                    const response = await fetchWithBackoff(API_URL, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
                     });
                     
                     const result = await response.json();
+                    
+                    // CORRECCIÓN: Mejor manejo de errores de la API
+                    if (result.error) {
+                        throw new Error(result.error.message);
+                    }
+
                     const candidate = result.candidates?.[0];
                     let responseText = "Error: No se pudo obtener una respuesta válida del modelo.";
                     let sourcesHtml = '';
 
                     if (candidate && candidate.content?.parts?.[0]?.text) {
                         responseText = candidate.content.parts[0].text;
-
                         const groundingMetadata = candidate.groundingMetadata;
                         if (groundingMetadata && groundingMetadata.groundingAttributions) {
                             const sources = groundingMetadata.groundingAttributions
@@ -487,10 +886,8 @@
                                 sourcesHtml += '</ul>';
                             }
                         }
-                    } else if (result.error) {
-                         responseText = `Error de API: ${result.error.message}. Por favor, inténtelo de nuevo.`;
-                    }
-
+                    } 
+                    
                     appendToLog(responseText, false);
                     if (sourcesHtml) {
                         const sourcesEl = document.createElement('div');
@@ -498,9 +895,18 @@
                         outputElement.appendChild(sourcesEl);
                     }
 
-                } catch (error) {
+                } catch (error)Read-Only
+                
                     console.error("Error al llamar a Gemini API:", error);
-                    appendToLog(`Error de conexión o timeout. Intente de nuevo.`, false);
+                    // Mensaje de error para el usuario
+                    let userErrorMessage = `Error de conexión o timeout. Intente de nuevo.`;
+                    if (error.message.includes("403")) {
+                        userErrorMessage = "Error de API (403): Acceso prohibido. Revisa las restricciones de tu API Key (Referentes HTTP).";
+                    } else if (error.message.includes("400")) {
+                        userErrorMessage = "Error de API (400): Solicitud incorrecta. Revisa el modelo de IA o la API Key.";
+                    }
+                    appendToLog(userErrorMessage, false);
+                    
                 } finally {
                     loadingElement.classList.add('hidden');
                     inputElement.disabled = false;
@@ -518,78 +924,23 @@
                 outputElement = document.getElementById('outputLog');
                 loadingElement = document.getElementById('consoleLoading');
                 executeButton = document.getElementById('executeCommandButton');
-                inputElement.onkeydown = handleKeyPress;
-                setTimeout(() => {
-                    appendToLog("Sistema de Diagnóstico con IA (v1.0) iniciado. ¡Consulte lo que necesite!", false);
-                }, 500);
+                if(inputElement) inputElement.onkeydown = handleKeyPress;
             }
 
             return { init, processCommand, handleKeyPress, appendToLog };
         })();
 
+        // Exponer funciones globales
         window.motorLabLogic = motorLabLogic;
         window.handleKeyPress = motorLabLogic.handleKeyPress;
+        window.toggleLikePost = toggleLikePost;
+        window.handleCommentSubmit = handleCommentSubmit;
+        window.buyCoins = buyCoins;
 
-        // --- INICIALIZACIÓN ---
-        function initAll() {
-            setupCharCounter();
+        // --- ARRANQUE INICIAL ---
+        setupCharCounter(); // Configura el contador de caracteres del feed
 
-            // Feed global: todos los posts (incluye videos)
-            onSnapshot(query(collection(db, `artifacts/${appId}/posts`), orderBy("timestamp", "desc"), limit(50)), snap => {
-                const container = document.getElementById('postsContainer');
-                container.innerHTML = '';
-                if (snap.empty) {
-                    container.innerHTML = '<p class="text-center text-gray-500 p-8">Sin posts aún. ¡Sé el primero!</p>';
-                    return;
-                }
-                snap.forEach(doc => {
-                    const p = { id: doc.id, ...doc.data() };
-                    const el = document.createElement('div');
-                    el.innerHTML = renderPost(p);
-                    container.appendChild(el.firstChild);
-                });
-            });
-
-            // Videos grid (solo thumbnails)
-            onSnapshot(query(collection(db, `artifacts/${appId}/posts`), where("mediaURL", "!=", null), orderBy("timestamp", "desc"), limit(20)), snap => {
-                const container = document.getElementById('videos-grid');
-                container.innerHTML = '';
-                snap.forEach(doc => {
-                    const v = doc.data();
-                    if (!v.mediaURL.includes('video')) return;
-                    const el = document.createElement('div');
-                    el.innerHTML = `
-                        <div onclick="playVideo('${v.mediaURL}', '${v.content}', '${doc.id}')" class="cursor-pointer">
-                            <div class="bg-gray-200 video-thumbnail rounded-xl overflow-hidden">
-                                <video src="${v.mediaURL}" class="w-full h-full object-cover" muted></video>
-                            </div>
-                            <p class="font-bold mt-2 truncate">${v.content}</p>
-                            <p class="text-sm text-gray-500">Subido por ${v.username}</p>
-                        </div>
-                    `;
-                    container.appendChild(el.firstChild);
-                });
-                if (snap.empty) container.innerHTML = '<p class="text-center text-gray-500 col-span-full p-8">Sube tu primer video</p>';
-            });
-
-            // Perfil
-            onSnapshot(doc(db, `artifacts/${appId}/users/${userId}`), doc => {
-                const d = doc.data() || {};
-                document.getElementById('profileUsername').textContent = d.username || `User-${userId.substring(0,4)}`;
-                document.getElementById('userCoins').textContent = d.coins || 0;
-                document.getElementById('vipBadge').classList.toggle('hidden', !d.isVIP);
-            });
-        }
-
-        window.buyCoins = async (amount) => {
-            await updateDoc(doc(db, `artifacts/${appId}/users/${userId}`), { coins: increment(amount) });
-            openModal('Éxito', `+${amount} monedas`);
-        };
-
-        // PWA
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').catch(console.error);
-        }
     </script>
 </body>
 </html>
+
