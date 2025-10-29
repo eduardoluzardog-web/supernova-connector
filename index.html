@@ -14,7 +14,7 @@
         .app-header { background-color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .active-tab { color: #00BFFF; border-bottom: 2px solid #00BFFF; }
         .tab-button { transition: color 0.2s, border-bottom 0.2s; }
-        .console-output { min-height: 150px; max-height: 40vh; overflow-y: auto; white-space: pre-wrap; }
+        .console-output { min-height: 150px; max-height: 40vh; overflow-y: auto; white-space: pre-wrap; position: relative; }
         .console-loading { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(17, 24, 39, 0.7); display: flex; align-items: center; justify-content: center; color: #38BDF8; font-size: 1rem; border-radius: 0.5rem; }
         .notif-badge { @apply bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center absolute -top-1 -right-1; }
         .video-thumbnail { aspect-ratio: 16/9; }
@@ -45,6 +45,7 @@
             <nav class="hidden md:flex space-x-6 text-gray-500 font-medium">
                 <button id="tab-Videos" onclick="setActiveTab('Videos')" class="tab-button hover:text-cyan-600">Videos</button>
                 <button id="tab-Feed" onclick="setActiveTab('Feed')" class="tab-button hover:text-cyan-600 active-tab">Feed</button>
+                <button id="tab-MotorLab" onclick="setActiveTab('MotorLab')" class="tab-button hover:text-cyan-600">Motor Lab</button>
                 <button id="tab-Profile" onclick="setActiveTab('Profile')" class="tab-button hover:text-cyan-600">Perfil</button>
             </nav>
             <div class="flex items-center space-x-3 relative">
@@ -100,6 +101,55 @@
             <div id="postsContainer" class="space-y-6"></div>
         </div>
 
+        <!-- PESTAÑA: MOTOR LAB (NUEVA) -->
+        <div id="content-MotorLab" class="tab-content hidden">
+            <div class="w-full bg-gray-900 rounded-xl shadow-2xl p-6 md:p-8 border border-cyan-700/50">
+                <!-- Título del Laboratorio -->
+                <header class="mb-6 text-center">
+                    <h2 class="text-3xl font-extrabold text-cyan-400 mb-1 tracking-wider">
+                        Motor Lab Consola
+                    </h2>
+                    <p class="text-gray-400 text-sm">
+                        Asistente de Diagnóstico con IA (Pregunte sobre DTCs o mantenimiento).
+                    </p>
+                </header>
+
+                <!-- Área Central de Interacción -->
+                <div class="space-y-4">
+                    <!-- Display/Historial -->
+                    <div id="outputLog" class="console-output bg-gray-900 p-4 rounded-lg border border-gray-700/60 transition duration-300 hover:border-cyan-500/50">
+                        <!-- Loading -->
+                        <div id="consoleLoading" class="console-loading hidden">
+                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-400 mr-3"></div>
+                            <span>SuperNova Analizando...</span>
+                        </div>
+                        <p class="text-cyan-500 font-mono text-sm">>$ Ingrese un comando en el campo inferior para interactuar con el Motor Lab.</p>
+                        <p class="text-gray-500 font-mono text-xs">>$ Pruebe con 'Qué significa P0420?' o 'Cómo cambiar el aceite de un Honda Civic 2010?'</p>
+                    </div>
+
+                    <!-- Campo de Texto -->
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <input
+                            type="text"
+                            id="commandInput"
+                            placeholder="Escribe tu consulta de diagnóstico o mantenimiento aquí..."
+                            class="flex-grow p-3 rounded-lg bg-gray-700 text-gray-100 placeholder-gray-400 border border-gray-700 focus:border-cyan-500 focus:ring-cyan-500 focus:ring-1 transition duration-200 shadow-md"
+                            onkeydown="handleKeyPress(event)"
+                        />
+
+                        <!-- Botón de Acción -->
+                        <button
+                            id="executeCommandButton"
+                            onclick="motorLabLogic.processCommand()"
+                            class="bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-3 px-6 rounded-lg transition duration-300 ease-in-out transform hover:scale-[1.02] shadow-lg shadow-cyan-900/50 active:shadow-none active:scale-[0.98]"
+                        >
+                            Ejecutar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- PESTAÑA: PERFIL -->
         <div id="content-Profile" class="tab-content hidden">
             <div class="bg-white p-6 rounded-xl shadow-lg text-center">
@@ -127,12 +177,16 @@
     <footer class="md:hidden fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 z-40 p-2 shadow-xl">
         <nav class="flex justify-around text-gray-500">
             <button onclick="setActiveTab('Videos')" class="flex flex-col items-center" id="tab-Videos-mobile">
-                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.55 3.55a.5 5 0 010 .9L15 18M7 6v12M3 10l4.55 3.55a.5 5 0 000 .9L3 18m12-8H7" /></svg>
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.55 3.55a.5.5 0 010 .9L15 18M7 6v12M3 10l4.55 3.55a.5.5 0 000 .9L3 18m12-8H7" /></svg>
                 <span class="text-xs">Videos</span>
             </button>
             <button onclick="setActiveTab('Feed')" class="flex flex-col items-center active-tab" id="tab-Feed-mobile">
                 <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2h10a2 2 0 012 2v15zm-9-10h4m-4 4h4m-4 4h4" /></svg>
                 <span class="text-xs">Feed</span>
+            </button>
+            <button onclick="setActiveTab('MotorLab')" class="flex flex-col items-center" id="tab-MotorLab-mobile">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 18a8 8 0 110-16 8 8 0 010 16zm-1-8a1 1 0 11-2 0 1 1 0 012 0zm3 0a1 1 0 11-2 0 1 1 0 012 0z" /></svg>
+                <span class="text-xs">Motor Lab</span>
             </button>
             <button onclick="setActiveTab('Profile')" class="flex flex-col items-center" id="tab-Profile-mobile">
                 <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
@@ -143,7 +197,7 @@
 
     <!-- Footer Desktop -->
     <footer class="text-center text-xs text-gray-500 py-4 mt-10">
-        © 2025 [TU NOMBRE COMPLETO]. Todos los derechos reservados. SuperNova™ Connector.
+        © 2025 Eduardo Luzardo. Todos los derechos reservados. SuperNova™ Connector.
     </footer>
 
     <script type="module">
@@ -153,7 +207,7 @@
         import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
         const firebaseConfig = {
-            // REEMPLAZA CON TU CONFIG (más abajo te digo cómo)
+            // REEMPLAZA CON TU CONFIG REAL (del dashboard)
             apiKey: "TU_API_KEY",
             authDomain: "tu-proyecto.firebaseapp.com",
             projectId: "tu-proyecto",
@@ -171,4 +225,357 @@
         const appId = 'supernova';
 
         // --- MODAL ---
-        window.closeModal = () => document.get
+        window.closeModal = () => document.getElementById('appModal').classList.add('hidden');
+        const openModal = (title, msg) => {
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalMessage').textContent = msg;
+            document.getElementById('appModal').classList.remove('hidden');
+        };
+
+        // --- AUTH ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                userId = user.uid;
+                document.getElementById('currentUserId').textContent = userId;
+                await ensureUserDoc();
+                initAll();
+            } else {
+                signInAnonymously(auth);
+            }
+            document.getElementById('loadingSpinner').classList.add('hidden');
+            setActiveTab('Feed');
+        });
+
+        async function ensureUserDoc() {
+            const userRef = doc(db, `artifacts/${appId}/users/${userId}`);
+            const snap = await getDoc(userRef);
+            if (!snap.exists()) {
+                await setDoc(userRef, {
+                    username: `User-${userId.substring(0,4)}`,
+                    coins: 50,
+                    isVIP: false,
+                    bio: "Explorador del cosmos automotriz",
+                    timestamp: serverTimestamp()
+                });
+            }
+        }
+
+        // --- TABS ---
+        window.activeTab = 'Feed';
+        window.setActiveTab = (tab) => {
+            window.activeTab = tab;
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`content-${tab}`)?.classList.remove('hidden');
+            document.querySelectorAll('.tab-button, .tab-button-mobile').forEach(b => b.classList.remove('active-tab'));
+            [``, `-mobile`].forEach(suffix => {
+                const el = document.getElementById(`tab-${tab}${suffix}`);
+                if (el) el.classList.add('active-tab');
+            });
+            if (tab === 'MotorLab') motorLabLogic.init();
+        };
+
+        // --- FEED ---
+        function setupCharCounter() {
+            const input = document.getElementById('postInput');
+            const counter = document.getElementById('charCount');
+            const btn = document.getElementById('postSubmitButton');
+            input.addEventListener('input', () => {
+                const len = input.value.length;
+                counter.textContent = `${len}/280`;
+                btn.disabled = len === 0;
+            });
+        }
+
+        let mediaFile = null;
+        window.handleMediaSelection = (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            if (file.size > 20 * 1024 * 1024) return openModal('Error', 'Archivo demasiado grande (máx 20MB)');
+            mediaFile = file;
+            const preview = document.getElementById('mediaPreview');
+            preview.innerHTML = `
+                <div class="flex items-center justify-between p-2 bg-gray-100 rounded-lg">
+                    <span class="text-sm truncate">${file.name}</span>
+                    <button onclick="clearMedia()" class="text-red-500">X</button>
+                </div>
+            `;
+            preview.classList.remove('hidden');
+        };
+
+        window.clearMedia = () => {
+            mediaFile = null;
+            document.getElementById('mediaPreview').classList.add('hidden');
+            document.getElementById('imageUpload').value = '';
+        };
+
+        window.handlePostSubmit = async () => {
+            const content = document.getElementById('postInput').value.trim();
+            if (!content) return;
+
+            let mediaURL = null;
+            if (mediaFile) {
+                const mediaRef = ref(storage, `feed/${userId}/${Date.now()}_${mediaFile.name}`);
+                const task = uploadBytesResumable(mediaRef, mediaFile);
+                await new Promise((resolve, reject) => {
+                    task.on('state_changed', null, reject, async () => {
+                        mediaURL = await getDownloadURL(task.snapshot.ref);
+                        resolve();
+                    });
+                });
+            }
+
+            await addDoc(collection(db, `artifacts/${appId}/users/${userId}/posts`), {
+                content, mediaURL, userId,
+                username: `User-${userId.substring(0,4)}`,
+                likes: 0, comments: 0, timestamp: serverTimestamp()
+            });
+
+            document.getElementById('postInput').value = '';
+            clearMedia();
+        };
+
+        function renderPost(p) {
+            return `
+                <div class="bg-white p-4 rounded-xl shadow">
+                    <div class="flex items-center space-x-3 mb-3">
+                        <div class="w-8 h-8 bg-cyan-200 rounded-full flex items-center justify-center text-cyan-700 font-bold text-sm">SN</div>
+                        <div>
+                            <p class="font-semibold">${p.username}</p>
+                            <p class="text-xs text-gray-500">${new Date(p.timestamp?.toDate()).toLocaleDateString()}</p>
+                        </div>
+                    </div>
+                    <p>${p.content}</p>
+                    ${p.mediaURL ? (p.mediaURL.includes('video') ? `<video src="${p.mediaURL}" controls class="w-full mt-3 rounded"></video>` : `<img src="${p.mediaURL}" class="w-full mt-3 rounded">`) : ''}
+                    <div class="flex justify-between mt-4 text-sm">
+                        <button onclick="likePost('${p.id}')" class="flex items-center space-x-1"><svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.432a2 2 0 00.556 1.34L10 19l4.444-3.9a2 2 0 00.556-1.34V10.333l1.874-3.748a.5.5 0 00-.233-.64L16 5l-4-4.596-2.5 2.5a.5.5 0 00-.09.308L9 5.385l-1.884-1.884a.5.5 0 00-.707 0L4.316 6.584z" /></svg><span>${p.likes || 0}</span></button>
+                        <span>${p.comments || 0} comentarios</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.likePost = async (postId) => {
+            await updateDoc(doc(db, `artifacts/${appId}/users/${userId}/posts/${postId}`), { likes: increment(1) });
+        };
+
+        // --- VIDEOS ---
+        window.handleVideoUpload = async (e) => {
+            const file = e.target.files[0];
+            if (!file || file.size > 100 * 1024 * 1024) return openModal('Error', 'Video muy grande (máx 100MB)');
+            const videoRef = ref(storage, `videos/${userId}/${Date.now()}_${file.name}`);
+            const task = uploadBytesResumable(videoRef, file);
+            task.on('state_changed', s => openModal('Subiendo...', `${(s.bytesTransferred / s.totalBytes * 100).toFixed(0)}%`), null, async () => {
+                const url = await getDownloadURL(task.snapshot.ref);
+                await addDoc(collection(db, `artifacts/${appId}/videos`), {
+                    userId, videoURL: url, title: file.name, views: 0, likes: 0, timestamp: serverTimestamp()
+                });
+                closeModal();
+            });
+        };
+
+        function renderVideo(v) {
+            return `
+                <div onclick="playVideo('${v.videoURL}', '${v.title}', '${v.id}')" class="cursor-pointer">
+                    <div class="bg-gray-200 video-thumbnail rounded-xl overflow-hidden">
+                        <video src="${v.videoURL}" class="w-full h-full object-cover"></video>
+                    </div>
+                    <p class="font-bold mt-2 truncate">${v.title}</p>
+                    <p class="text-sm text-gray-500">${v.views} vistas</p>
+                </div>
+            `;
+        }
+
+        let currentVideoId = null;
+        window.playVideo = (url, title, videoId) => {
+            currentVideoId = videoId;
+            openModal(title, `<video src="${url}" controls class="w-full max-h-96 rounded"></video>`);
+            updateDoc(doc(db, `artifacts/${appId}/videos/${videoId}`), { views: increment(1) });
+        };
+
+        // --- MOTOR LAB (LÓGICA IA) ---
+        const motorLabLogic = (function() {
+            let inputElement, outputElement, loadingElement, executeButton;
+
+            function appendToLog(text, isUser = false) {
+                const entry = document.createElement('p');
+                entry.classList.add('font-mono', 'text-sm', 'mb-1');
+
+                if (isUser) {
+                    entry.innerHTML = `&gt;$ <span class="text-green-400">${text}</span>`;
+                } else {
+                    entry.innerHTML = `<span class="text-cyan-500">[MOTOR]</span>: ${text}`;
+                }
+                outputElement.appendChild(entry);
+                outputElement.scrollTop = outputElement.scrollHeight;
+            }
+
+            async function fetchWithBackoff(url, options, maxRetries = 5) {
+                for (let i = 0; i < maxRetries; i++) {
+                    try {
+                        const response = await fetch(url, options);
+                        if (!response.ok) {
+                            if (response.status === 429 && i < maxRetries - 1) {
+                                const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
+                                await new Promise(resolve => setTimeout(resolve, delay));
+                                continue;
+                            }
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response;
+                    } catch (error) {
+                        if (i === maxRetries - 1) {
+                            throw error;
+                        }
+                    }
+                }
+            }
+
+            async function processCommand() {
+                const command = inputElement.value.trim();
+
+                if (command === "") return;
+
+                appendToLog(command, true);
+                inputElement.value = '';
+
+                loadingElement.classList.remove('hidden');
+                inputElement.disabled = true;
+                executeButton.disabled = true;
+
+                const GEMINI_MODEL = "gemini-1.5-flash";  // Usa un modelo disponible en 2025
+                const API_KEY = "TU_GEMINI_API_KEY";  // Reemplaza con tu key real de Google AI Studio
+                const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${API_KEY}`;
+                const SYSTEM_INSTRUCTION = "Actúa como un asistente experto de laboratorio automotriz y diagnóstico llamado SuperNova. Proporciona respuestas concisas, claras y técnicamente precisas a comandos y consultas sobre vehículos. Utiliza la herramienta de búsqueda de Google para encontrar información actualizada, especialmente para códigos de diagnóstico de fallas (DTC) o modelos de automóviles específicos. Formatea la información técnica compleja en párrafos cortos y legibles.";
+
+                const payload = {
+                    contents: [{ parts: [{ text: command }] }],
+                    tools: [{ "google_search": {} }],
+                    systemInstruction: {
+                        parts: [{ text: SYSTEM_INSTRUCTION }]
+                    },
+                };
+
+                try {
+                    const response = await fetchWithBackoff(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    const result = await response.json();
+                    const candidate = result.candidates?.[0];
+                    let responseText = "Error: No se pudo obtener una respuesta válida del modelo.";
+                    let sourcesHtml = '';
+
+                    if (candidate && candidate.content?.parts?.[0]?.text) {
+                        responseText = candidate.content.parts[0].text;
+
+                        const groundingMetadata = candidate.groundingMetadata;
+                        if (groundingMetadata && groundingMetadata.groundingAttributions) {
+                            const sources = groundingMetadata.groundingAttributions
+                                .map(attr => ({
+                                    uri: attr.web?.uri,
+                                    title: attr.web?.title,
+                                }))
+                                .filter(source => source.uri && source.title);
+
+                            if (sources.length > 0) {
+                                sourcesHtml = '<p class="text-xs text-gray-500 font-sans mt-2 mb-1">Referencias de Google:</p><ul class="list-disc list-inside text-xs text-gray-400 font-sans">';
+                                sources.slice(0, 3).forEach((source, index) => {
+                                    sourcesHtml += `<li><a href="${source.uri}" target="_blank" class="hover:text-cyan-400 truncate">${source.title}</a></li>`;
+                                });
+                                sourcesHtml += '</ul>';
+                            }
+                        }
+                    } else if (result.error) {
+                         responseText = `Error de API: ${result.error.message}. Por favor, inténtelo de nuevo.`;
+                    }
+
+                    appendToLog(responseText, false);
+                    if (sourcesHtml) {
+                        const sourcesEl = document.createElement('div');
+                        sourcesEl.innerHTML = sourcesHtml;
+                        outputElement.appendChild(sourcesEl);
+                    }
+
+                } catch (error) {
+                    console.error("Error al llamar a Gemini API:", error);
+                    appendToLog(`Error de conexión o timeout. Intente de nuevo.`, false);
+                } finally {
+                    loadingElement.classList.add('hidden');
+                    inputElement.disabled = false;
+                    executeButton.disabled = false;
+                    inputElement.focus();
+                }
+            }
+
+            function handleKeyPress(event) {
+                if (event.key === 'Enter') {
+                    processCommand();
+                }
+            }
+
+            function init() {
+                inputElement = document.getElementById('commandInput');
+                outputElement = document.getElementById('outputLog');
+                loadingElement = document.getElementById('consoleLoading');
+                executeButton = document.getElementById('executeCommandButton');
+                
+                inputElement.onkeydown = handleKeyPress;
+
+                if (outputElement.children.length < 3) {
+                    setTimeout(() => {
+                        appendToLog("Sistema de Diagnóstico con IA (v1.0) iniciado. ¡Consulte lo que necesite!", false);
+                    }, 500);
+                }
+            }
+
+            return { init, processCommand, handleKeyPress, appendToLog };
+        })();
+
+        window.motorLabLogic = motorLabLogic;
+        window.handleKeyPress = motorLabLogic.handleKeyPress;
+
+        // --- INICIALIZACIÓN ---
+        function initAll() {
+            setupCharCounter();
+            onSnapshot(query(collection(db, `artifacts/${appId}/users/${userId}/posts`), orderBy("timestamp", "desc")), snap => {
+                const container = document.getElementById('postsContainer');
+                container.innerHTML = snap.empty ? '<p class="text-center text-gray-500">Sin posts aún</p>' : '';
+                snap.forEach(doc => {
+                    const el = document.createElement('div');
+                    el.innerHTML = renderPost({ id: doc.id, ...doc.data() });
+                    container.appendChild(el.firstChild);
+                });
+            });
+
+            onSnapshot(query(collection(db, `artifacts/${appId}/videos`), orderBy("timestamp", "desc")), snap => {
+                const container = document.getElementById('videos-grid');
+                container.innerHTML = '';
+                snap.forEach(doc => {
+                    const el = document.createElement('div');
+                    el.innerHTML = renderVideo({ id: doc.id, ...doc.data() });
+                    container.appendChild(el.firstChild);
+                });
+            });
+
+            onSnapshot(doc(db, `artifacts/${appId}/users/${userId}`), doc => {
+                const d = doc.data();
+                document.getElementById('profileUsername').textContent = d.username;
+                document.getElementById('userCoins').textContent = d.coins || 0;
+                document.getElementById('vipBadge').classList.toggle('hidden', !d.isVIP);
+            });
+        }
+
+        window.buyCoins = async (amount) => {
+            await updateDoc(doc(db, `artifacts/${appId}/users/${userId}`), { coins: increment(amount) });
+            openModal('Éxito', `+${amount} monedas`);
+        };
+
+        // PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+    </script>
+</body>
+</html>
