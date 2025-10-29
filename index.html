@@ -51,7 +51,7 @@
             <div class="flex items-center space-x-3 relative">
                 <button id="notifButton" onclick="setActiveTab('Notifications')" class="text-gray-500 hover:text-cyan-600 p-2 rounded-full transition relative">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 00-6-6h-4a6 6 0 00-6 6v3.158c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 01-6 0v-1m6 0H9" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 0 0118 14.158V11a6 6 0 00-6-6h-4a6 6 0 00-6 6v3.158c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 01-6 0v-1m6 0H9" />
                     </svg>
                     <span id="notif-badge" class="notif-badge hidden"></span>
                 </button>
@@ -105,8 +105,12 @@
         <div id="content-MotorLab" class="tab-content hidden">
             <div class="w-full bg-gray-900 rounded-xl shadow-2xl p-6 md:p-8 border border-cyan-700/50">
                 <header class="mb-6 text-center">
-                    <h2 class="text-3xl font-extrabold text-cyan-400 mb-1 tracking-wider">Motor Lab Consola</h2>
-                    <p class="text-gray-400 text-sm">Asistente de Diagnóstico con IA (Pregunte sobre DTCs o mantenimiento).</p>
+                    <h2 class="text-3xl font-extrabold text-cyan-400 mb-1 tracking-wider">
+                        Motor Lab Consola
+                    </h2>
+                    <p class="text-gray-400 text-sm">
+                        Asistente de Diagnóstico con IA (Pregunte sobre DTCs o mantenimiento).
+                    </p>
                 </header>
                 <div class="space-y-4">
                     <div id="outputLog" class="console-output bg-gray-900 p-4 rounded-lg border border-gray-700/60 transition duration-300 hover:border-cyan-500/50">
@@ -114,12 +118,22 @@
                             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-400 mr-3"></div>
                             <span>SuperNova Analizando...</span>
                         </div>
-                        <p class="text-cyan-500 font-mono text-sm">>$ Ingrese un comando en el campo inferior.</p>
-                        <p class="text-gray-500 font-mono text-xs">>$ Ej: 'Qué significa P0420?'</p>
+                        <p class="text-cyan-500 font-mono text-sm">>$ Ingrese un comando en el campo inferior para interactuar con el Motor Lab.</p>
+                        <p class="text-gray-500 font-mono text-xs">>$ Pruebe con 'Qué significa P0420?' o 'Cómo cambiar el aceite de un Honda Civic 2010?'</p>
                     </div>
                     <div class="flex flex-col sm:flex-row gap-3">
-                        <input type="text" id="commandInput" placeholder="Escribe tu consulta..." class="flex-grow p-3 rounded-lg bg-gray-700 text-gray-100 placeholder-gray-400 border border-gray-700 focus:border-cyan-500 focus:ring-cyan-500 focus:ring-1 transition duration-200 shadow-md" onkeydown="handleKeyPress(event)">
-                        <button id="executeCommandButton" onclick="motorLabLogic.processCommand()" class="bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-3 px-6 rounded-lg transition duration-300 ease-in-out transform hover:scale-[1.02] shadow-lg shadow-cyan-900/50 active:shadow-none active:scale-[0.98]">
+                        <input
+                            type="text"
+                            id="commandInput"
+                            placeholder="Escribe tu consulta de diagnóstico o mantenimiento aquí..."
+                            class="flex-grow p-3 rounded-lg bg-gray-700 text-gray-100 placeholder-gray-400 border border-gray-700 focus:border-cyan-500 focus:ring-cyan-500 focus:ring-1 transition duration-200 shadow-md"
+                            onkeydown="handleKeyPress(event)"
+                        />
+                        <button
+                            id="executeCommandButton"
+                            onclick="motorLabLogic.processCommand()"
+                            class="bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-3 px-6 rounded-lg transition duration-300 ease-in-out transform hover:scale-[1.02] shadow-lg shadow-cyan-900/50 active:shadow-none active:scale-[0.98]"
+                        >
                             Ejecutar
                         </button>
                     </div>
@@ -180,17 +194,17 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, doc, updateDoc, increment, onSnapshot, query, orderBy, serverTimestamp, setDoc, deleteDoc, getDoc, where, getDocs, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, doc, updateDoc, increment, onSnapshot, query, orderBy, serverTimestamp, setDoc, getDoc, where, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
-        // === TU CONFIGURACIÓN REAL (PEGA AQUÍ) ===
+        // TU CONFIG REAL
         const firebaseConfig = {
-            apiKey: "AIzaSyDBHkPTixBVMQpinuZZ7tGJ91Cya6eGWSU",
-            authDomain: "supernova-connector.firebaseapp.com",
-            projectId: "supernova-connector",
-            storageBucket: "supernova-connector.firebasestorage.app",
-            messagingSenderId: "283998519995",
-            appId: "1:283998519995:web:1ce19489d3b8414ca81f9a"
+          apiKey: "AIzaSyDBHkPTixBVMQpinuZZ7tGJ91Cya6eGWSU",
+          authDomain: "supernova-connector.firebaseapp.com",
+          projectId: "supernova-connector",
+          storageBucket: "supernova-connector.firebasestorage.app",
+          messagingSenderId: "283998519995",
+          appId: "1:283998519995:web:1ce19489d3b8414ca81f9a"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -256,11 +270,13 @@
             const input = document.getElementById('postInput');
             const counter = document.getElementById('charCount');
             const btn = document.getElementById('postSubmitButton');
-            input.addEventListener('input', () => {
-                const len = input.value.length;
+            const updateButton = () => {
+                const len = input.value.trim().length;
                 counter.textContent = `${len}/280`;
                 btn.disabled = len === 0;
-            });
+            };
+            input.addEventListener('input', updateButton);
+            updateButton(); // Inicial
         }
 
         let mediaFile = null;
@@ -270,7 +286,12 @@
             if (file.size > 20 * 1024 * 1024) return openModal('Error', 'Archivo demasiado grande (máx 20MB)');
             mediaFile = file;
             const preview = document.getElementById('mediaPreview');
-            preview.innerHTML = `<div class="flex items-center justify-between p-2 bg-gray-100 rounded-lg"><span class="text-sm truncate">${file.name}</span><button onclick="clearMedia()" class="text-red-500">X</button></div>`;
+            preview.innerHTML = `
+                <div class="flex items-center justify-between p-2 bg-gray-100 rounded-lg">
+                    <span class="text-sm truncate">${file.name}</span>
+                    <button onclick="clearMedia()" class="text-red-500">X</button>
+                </div>
+            `;
             preview.classList.remove('hidden');
         };
 
@@ -280,7 +301,6 @@
             document.getElementById('imageUpload').value = '';
         };
 
-        // === UPLOAD MEJORADO CON PROGRESO Y TIMEOUT ===
         window.handlePostSubmit = async () => {
             const content = document.getElementById('postInput').value.trim();
             if (!content) return;
@@ -320,7 +340,7 @@
                 });
             }
 
-            await addDoc(collection(db, `artifacts/${appId}/users/${userId}/posts`), {
+            await addDoc(collection(db, `artifacts/${appId}/posts`), {
                 content, mediaURL, userId,
                 username: `User-${userId.substring(0,4)}`,
                 likes: 0, comments: 0, timestamp: serverTimestamp()
@@ -332,17 +352,18 @@
         };
 
         function renderPost(p) {
+            const isVideo = p.mediaURL && p.mediaURL.toLowerCase().includes('video');
             return `
                 <div class="bg-white p-4 rounded-xl shadow">
                     <div class="flex items-center space-x-3 mb-3">
                         <div class="w-8 h-8 bg-cyan-200 rounded-full flex items-center justify-center text-cyan-700 font-bold text-sm">SN</div>
                         <div>
                             <p class="font-semibold">${p.username}</p>
-                            <p class="text-xs text-gray-500">${new Date(p.timestamp?.toDate()).toLocaleDateString()}</p>
+                            <p class="text-xs text-gray-500">${new Date(p.timestamp?.toDate()).toLocaleString()}</p>
                         </div>
                     </div>
                     <p>${p.content}</p>
-                    ${p.mediaURL ? (p.mediaURL.includes('video') ? `<video src="${p.mediaURL}" controls class="w-full mt-3 rounded"></video>` : `<img src="${p.mediaURL}" class="w-full mt-3 rounded">`) : ''}
+                    ${p.mediaURL ? (isVideo ? `<video src="${p.mediaURL}" controls class="w-full mt-3 rounded-xl"></video>` : `<img src="${p.mediaURL}" class="w-full mt-3 rounded-xl">`) : ''}
                     <div class="flex justify-between mt-4 text-sm">
                         <button onclick="likePost('${p.id}')" class="flex items-center space-x-1"><svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.432a2 2 0 00.556 1.34L10 19l4.444-3.9a2 2 0 00.556-1.34V10.333l1.874-3.748a.5.5 0 00-.233-.64L16 5l-4-4.596-2.5 2.5a.5.5 0 00-.09.308L9 5.385l-1.884-1.884a.5.5 0 00-.707 0L4.316 6.584z" /></svg><span>${p.likes || 0}</span></button>
                         <span>${p.comments || 0} comentarios</span>
@@ -352,16 +373,16 @@
         }
 
         window.likePost = async (postId) => {
-            await updateDoc(doc(db, `artifacts/${appId}/users/${userId}/posts/${postId}`), { likes: increment(1) });
+            await updateDoc(doc(db, `artifacts/${appId}/posts/${postId}`), { likes: increment(1) });
         };
 
-        // --- VIDEOS MEJORADO ---
+        // --- VIDEOS ---
         window.handleVideoUpload = async (e) => {
             const file = e.target.files[0];
             if (!file || file.size > 100 * 1024 * 1024) return openModal('Error', 'Video muy grande (máx 100MB)');
             const videoRef = ref(storage, `videos/${userId}/${Date.now()}_${file.name}`);
             const task = uploadBytesResumable(videoRef, file);
-
+            
             await new Promise((resolve, reject) => {
                 let timeoutId = setTimeout(() => {
                     task.cancel();
@@ -382,8 +403,13 @@
                         clearTimeout(timeoutId);
                         closeModal();
                         const url = await getDownloadURL(task.snapshot.ref);
-                        await addDoc(collection(db, `artifacts/${appId}/videos`), {
-                            userId, videoURL: url, title: file.name, views: 0, likes: 0, timestamp: serverTimestamp()
+                        await addDoc(collection(db, `artifacts/${appId}/posts`), {
+                            content: `Nuevo video: ${file.name}`,
+                            mediaURL: url,
+                            userId,
+                            username: `User-${userId.substring(0,4)}`,
+                            isVideo: true,
+                            likes: 0, comments: 0, timestamp: serverTimestamp()
                         });
                         resolve();
                     }
@@ -394,64 +420,87 @@
             });
         };
 
-        function renderVideo(v) {
-            return `
-                <div onclick="playVideo('${v.videoURL}', '${v.title}', '${v.id}')" class="cursor-pointer">
-                    <div class="bg-gray-200 video-thumbnail rounded-xl overflow-hidden">
-                        <video src="${v.videoURL}" class="w-full h-full object-cover"></video>
-                    </div>
-                    <p class="font-bold mt-2 truncate">${v.title}</p>
-                    <p class="text-sm text-gray-500">${v.views} vistas</p>
-                </div>
-            `;
-        }
-
-        let currentVideoId = null;
-        window.playVideo = (url, title, videoId) => {
-            currentVideoId = videoId;
-            document.getElementById('modalTitle').textContent = title;
-            document.getElementById('modalMessage').innerHTML = `<video src="${url}" controls class="w-full max-h-96 rounded-xl" autoplay></video>`;
-            document.getElementById('appModal').classList.remove('hidden');
-            updateDoc(doc(db, `artifacts/${appId}/videos/${videoId}`), { views: increment(1) }).catch(console.error);
-        };
-
-        // --- MOTOR LAB CON GEMINI ---
+        // --- MOTOR LAB (IA) ---
         const motorLabLogic = (function() {
             let inputElement, outputElement, loadingElement, executeButton;
 
             function appendToLog(text, isUser = false) {
                 const entry = document.createElement('p');
                 entry.classList.add('font-mono', 'text-sm', 'mb-1');
-                entry.innerHTML = isUser ? `&gt;$ <span class="text-green-400">${text}</span>` : `<span class="text-cyan-500">[MOTOR]</span>: ${text}`;
+                if (isUser) {
+                    entry.innerHTML = `&gt;$ <span class="text-green-400">${text}</span>`;
+                } else {
+                    entry.innerHTML = `<span class="text-cyan-500">[MOTOR]</span>: ${text}`;
+                }
                 outputElement.appendChild(entry);
                 outputElement.scrollTop = outputElement.scrollHeight;
             }
 
             async function processCommand() {
                 const command = inputElement.value.trim();
-                if (!command) return;
+                if (command === "") return;
 
                 appendToLog(command, true);
                 inputElement.value = '';
+
                 loadingElement.classList.remove('hidden');
                 inputElement.disabled = true;
                 executeButton.disabled = true;
 
-                const API_KEY = "PEGA_TU_GEMINI_API_KEY_AQUÍ";
-                const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+                const GEMINI_MODEL = "gemini-1.5-flash";
+                const API_KEY = "AIzaSyCm6kzdi0KcduxjfBR4zf3kmHGkYNquDgg";  // REEMPLAZA
+                const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${API_KEY}`;
+                const SYSTEM_INSTRUCTION = "Actúa como un asistente experto de laboratorio automotriz y diagnóstico llamado SuperNova. Proporciona respuestas concisas, claras y técnicamente precisas a comandos y consultas sobre vehículos. Utiliza la herramienta de búsqueda de Google para encontrar información actualizada, especialmente para códigos de diagnóstico de fallas (DTC) o modelos de automóviles específicos. Formatea la información técnica compleja en párrafos cortos y legibles.";
+
                 const payload = {
                     contents: [{ parts: [{ text: command }] }],
                     tools: [{ "google_search": {} }],
-                    systemInstruction: { parts: [{ text: "Eres SuperNova, experto en diagnóstico automotriz. Responde claro y con fuentes." }] }
+                    systemInstruction: { parts: [{ text: SYSTEM_INSTRUCTION }] },
                 };
 
                 try {
-                    const response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
                     const result = await response.json();
-                    const text = result.candidates?.[0]?.content?.parts?.[0]?.text || "Sin respuesta.";
-                    appendToLog(text, false);
+                    const candidate = result.candidates?.[0];
+                    let responseText = "Error: No se pudo obtener una respuesta válida del modelo.";
+                    let sourcesHtml = '';
+
+                    if (candidate && candidate.content?.parts?.[0]?.text) {
+                        responseText = candidate.content.parts[0].text;
+
+                        const groundingMetadata = candidate.groundingMetadata;
+                        if (groundingMetadata && groundingMetadata.groundingAttributions) {
+                            const sources = groundingMetadata.groundingAttributions
+                                .map(attr => ({ uri: attr.web?.uri, title: attr.web?.title }))
+                                .filter(source => source.uri && source.title);
+
+                            if (sources.length > 0) {
+                                sourcesHtml = '<p class="text-xs text-gray-500 font-sans mt-2 mb-1">Referencias de Google:</p><ul class="list-disc list-inside text-xs text-gray-400 font-sans">';
+                                sources.slice(0, 3).forEach(source => {
+                                    sourcesHtml += `<li><a href="${source.uri}" target="_blank" class="hover:text-cyan-400 truncate">${source.title}</a></li>`;
+                                });
+                                sourcesHtml += '</ul>';
+                            }
+                        }
+                    } else if (result.error) {
+                         responseText = `Error de API: ${result.error.message}. Por favor, inténtelo de nuevo.`;
+                    }
+
+                    appendToLog(responseText, false);
+                    if (sourcesHtml) {
+                        const sourcesEl = document.createElement('div');
+                        sourcesEl.innerHTML = sourcesHtml;
+                        outputElement.appendChild(sourcesEl);
+                    }
+
                 } catch (error) {
-                    appendToLog(`Error: ${error.message}`, false);
+                    console.error("Error al llamar a Gemini API:", error);
+                    appendToLog(`Error de conexión o timeout. Intente de nuevo.`, false);
                 } finally {
                     loadingElement.classList.add('hidden');
                     inputElement.disabled = false;
@@ -470,10 +519,12 @@
                 loadingElement = document.getElementById('consoleLoading');
                 executeButton = document.getElementById('executeCommandButton');
                 inputElement.onkeydown = handleKeyPress;
-                appendToLog("Sistema iniciado. Pregunta sobre DTCs o mantenimiento.", false);
+                setTimeout(() => {
+                    appendToLog("Sistema de Diagnóstico con IA (v1.0) iniciado. ¡Consulte lo que necesite!", false);
+                }, 500);
             }
 
-            return { init, processCommand, handleKeyPress };
+            return { init, processCommand, handleKeyPress, appendToLog };
         })();
 
         window.motorLabLogic = motorLabLogic;
@@ -483,33 +534,48 @@
         function initAll() {
             setupCharCounter();
 
-            // Posts
-            onSnapshot(query(collection(db, `artifacts/${appId}/users/${userId}/posts`), orderBy("timestamp", "desc")), snap => {
+            // Feed global: todos los posts (incluye videos)
+            onSnapshot(query(collection(db, `artifacts/${appId}/posts`), orderBy("timestamp", "desc"), limit(50)), snap => {
                 const container = document.getElementById('postsContainer');
-                container.innerHTML = snap.empty ? '<p class="text-center text-gray-500">Sin posts aún</p>' : '';
+                container.innerHTML = '';
+                if (snap.empty) {
+                    container.innerHTML = '<p class="text-center text-gray-500 p-8">Sin posts aún. ¡Sé el primero!</p>';
+                    return;
+                }
                 snap.forEach(doc => {
+                    const p = { id: doc.id, ...doc.data() };
                     const el = document.createElement('div');
-                    el.innerHTML = renderPost({ id: doc.id, ...doc.data() });
+                    el.innerHTML = renderPost(p);
                     container.appendChild(el.firstChild);
                 });
             });
 
-            // Videos en tiempo real
-            onSnapshot(query(collection(db, `artifacts/${appId}/videos`), orderBy("timestamp", "desc"), limit(20)), snap => {
+            // Videos grid (solo thumbnails)
+            onSnapshot(query(collection(db, `artifacts/${appId}/posts`), where("mediaURL", "!=", null), orderBy("timestamp", "desc"), limit(20)), snap => {
                 const container = document.getElementById('videos-grid');
                 container.innerHTML = '';
                 snap.forEach(doc => {
+                    const v = doc.data();
+                    if (!v.mediaURL.includes('video')) return;
                     const el = document.createElement('div');
-                    el.innerHTML = renderVideo({ id: doc.id, ...doc.data() });
+                    el.innerHTML = `
+                        <div onclick="playVideo('${v.mediaURL}', '${v.content}', '${doc.id}')" class="cursor-pointer">
+                            <div class="bg-gray-200 video-thumbnail rounded-xl overflow-hidden">
+                                <video src="${v.mediaURL}" class="w-full h-full object-cover" muted></video>
+                            </div>
+                            <p class="font-bold mt-2 truncate">${v.content}</p>
+                            <p class="text-sm text-gray-500">Subido por ${v.username}</p>
+                        </div>
+                    `;
                     container.appendChild(el.firstChild);
                 });
-                if (snap.empty) container.innerHTML = '<p class="text-center text-gray-500 col-span-full p-8">Sube el primer video</p>';
+                if (snap.empty) container.innerHTML = '<p class="text-center text-gray-500 col-span-full p-8">Sube tu primer video</p>';
             });
 
             // Perfil
             onSnapshot(doc(db, `artifacts/${appId}/users/${userId}`), doc => {
-                const d = doc.data();
-                document.getElementById('profileUsername').textContent = d.username;
+                const d = doc.data() || {};
+                document.getElementById('profileUsername').textContent = d.username || `User-${userId.substring(0,4)}`;
                 document.getElementById('userCoins').textContent = d.coins || 0;
                 document.getElementById('vipBadge').classList.toggle('hidden', !d.isVIP);
             });
@@ -522,7 +588,7 @@
 
         // PWA
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js');
+            navigator.serviceWorker.register('sw.js').catch(console.error);
         }
     </script>
 </body>
