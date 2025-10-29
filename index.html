@@ -207,15 +207,14 @@
         import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
         const firebaseConfig = {
-            // REEMPLAZA CON TU CONFIG REAL (del dashboard)
-            apiKey: "TU_API_KEY",
-            authDomain: "tu-proyecto.firebaseapp.com",
-            projectId: "tu-proyecto",
-            storageBucket: "tu-proyecto.appspot.com",
-            messagingSenderId: "123456789",
-            appId: "1:123456789:web:abcdef"
-        };
-
+  apiKey: "AIzaSyDBHkPTixBvMQpinuZZ7tGJ91Cya6eGWSU",
+  authDomain: "supernova-connector.firebaseapp.com",
+  projectId: "supernova-connector",
+  storageBucket: "supernova-connector.firebasestorage.app",
+  messagingSenderId: "283998519995",
+  appId: "1:283998519995:web:1ce19489d3b8414ca81f9e",
+  measurementId: "G-GQWR8HJN5T"
+};
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
