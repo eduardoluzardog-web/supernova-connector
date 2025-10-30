@@ -223,11 +223,13 @@
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
         // --- CONFIGURACIÓN DE FIREBASE (TU CONFIG) ---
+        // ¡No pegues tu clave aquí si el repositorio es público!
+        // Esta clave debe tener restricciones de "Sitios web" en Google Cloud
         const firebaseConfig = {
-          apiKey: "AIzaSyDBHkPTixBVMQpinuZZ7tGJ91Cya6eGWSU",
+          apiKey: "TU_API_KEY_DE_FIREBASE", // Reemplaza con tu clave NUEVA y RESTRINGIDA
           authDomain: "supernova-connector.firebaseapp.com",
           projectId: "supernova-connector",
-          storageBucket: "supernova-connector.appspot.com", // CORRECCIÓN: Tu bucket es .appspot.com, no .firebasestorage.app
+          storageBucket: "supernova-connector.appspot.com", // Esta es la dirección correcta del bucket
           messagingSenderId: "283998519995",
           appId: "1:283998519995:web:1ce19489d3b8414ca81f9a"
         };
@@ -243,12 +245,10 @@
         let unsubscribeUser, unsubscribeFeed, unsubscribeVideos, unsubscribeNotifs; // Para limpiar listeners
 
         // --- CONSTANTES DE GEMINI API ---
-        // CORRECCIÓN: Revertido al modelo gemini-2.5-flash y API Key en blanco
-        // El Canvas/GitHub Pages debe tener la Key configurada en sus variables de entorno o tu dashboard de Google
-        // NO PEGUES TU KEY AQUÍ. Déjala en "" si el Canvas la provee, o gestiónala de forma segura.
-        // Si usas GitHub Pages, debes restringir tu key a 'eduardoluzardog-web.github.io/*'
+        // ¡No pegues tu clave aquí!
+        // Esta clave también debe tener la restricción de "Sitios web"
         const GEMINI_MODEL = "gemini-2.5-flash-preview-09-2025";
-        const API_KEY = ""; // CORRECCIÓN: NUNCA pegues tu key en el código. El Canvas la inyecta. Si estás en GitHub, usa tu key, pero ¡RESTRÍNGELA!
+        const API_KEY = "TU_API_KEY_DE_GEMINI"; // Reemplaza con tu clave NUEVA y RESTRINGIDA
         const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${API_KEY}`;
         const SYSTEM_INSTRUCTION = "Actúa como un asistente experto de laboratorio automotriz y diagnóstico llamado SuperNova. Proporciona respuestas concisas, claras y técnicamente precisas a comandos y consultas sobre vehículos. Utiliza la herramienta de búsqueda de Google para encontrar información actualizada, especialmente para códigos de diagnóstico de fallas (DTC) o modelos de automóviles específicos. Formatea la información técnica compleja en párrafos cortos y legibles.";
 
@@ -376,9 +376,8 @@
         window.clearMediaSelection = clearMediaSelection;
 
         /**
-         * CORRECCIÓN DE ASINCRONÍA (PROBLEMA 1)
-         * Esta es la función clave que has estado depurando.
-         * La lógica se ha reestructurado para ser más clara y robusta.
+         * LÓGICA DE SUBIDA Y PUBLICACIÓN (ASINCRONÍA CORREGIDA)
+         * Esta es la función más importante para tu problema.
          */
         window.handlePostSubmit = async () => {
             const content = document.getElementById('postInput').value.trim();
@@ -461,7 +460,7 @@
         };
 
 
-        // --- LÓGICA DE LA PESTAÑA DE VIDEOS (PROBLEMA 1 CORREGIDO) ---
+        // --- LÓGICA DE LA PESTAÑA DE VIDEOS (ASINCRONÍA CORREGIDA) ---
         window.handleVideoUpload = async (e) => {
             const file = e.target.files[0];
             if (!file) return;
@@ -477,6 +476,7 @@
             const task = uploadBytesResumable(videoRef, file);
 
             try {
+                // Mismo patrón async de "handlePostSubmit"
                 await new Promise((resolve, reject) => {
                     task.on('state_changed',
                         (snapshot) => {
@@ -494,7 +494,7 @@
                             await addDoc(collection(db, `artifacts/${appId}/posts`), {
                                 content: file.name.replace(/_/g, ' ').replace(/\.[^/.]+$/, ""), // Título por defecto
                                 mediaURL: url,
-                                isVideo: true, // <-- CORRECCIÓN: Usar el flag booleano
+                                isVideo: true, // ¡Flag importante!
                                 userId: userId,
                                 username: `User-${userId.substring(0, 4)}`,
                                 likes: 0,
@@ -502,7 +502,7 @@
                                 likedBy: [],
                                 timestamp: serverTimestamp()
                             });
-                            resolve();
+                            resolve(); // Resuelve la promesa
                         }
                     );
                 });
@@ -520,11 +520,11 @@
         };
 
 
-        // --- RENDERIZADO DE POSTS Y VIDEOS (PROBLEMA 1 CORREGIDO) ---
+        // --- RENDERIZADO DE POSTS Y VIDEOS ---
         
         // Renderiza un post individual (usado por el Feed)
         function renderPost(p) {
-            // CORRECCIÓN: Usamos el flag 'p.isVideo' en lugar de adivinar por la URL
+            // Lógica de renderizado basada en el flag 'p.isVideo'
             const mediaHtml = p.mediaURL 
                 ? (p.isVideo 
                     ? `<video src="${p.mediaURL}" controls class="w-full mt-3 rounded-xl bg-black"></video>` 
@@ -587,6 +587,12 @@
                     </div>
                 </div>
             `;
+        }
+
+        // Función 'playVideo' (placeholder por ahora)
+        window.playVideo = (url, title, id) => {
+            // Aquí podrías abrir un modal de reproducción de video
+            openModal(`Reproduciendo: ${title}`, `El video (ID: ${id}) se reproduciría aquí. URL: ${url}`);
         }
 
         // --- LÓGICA DE INTERACCIÓN (Likes & Comentarios) ---
@@ -672,11 +678,14 @@
         
         // Marcar notificaciones como leídas al abrir la pestaña
         async function markNotificationsAsRead() {
-            const q = query(collection(db, `artifacts/${appId}/users/${userId}/notifications`), where("isRead", "==", false));
-            const snap = await getDoc(q);
-            // No hay 'getDoc' para queries, es 'getDocs'
-            // Esta función es más compleja, la simplificaremos por ahora
-            document.getElementById('notif-badge').classList.add('hidden');
+            // Esta es una operación de "escritura por lotes" (batch write),
+            // pero por simplicidad, solo ocultaremos la insignia.
+            const badge = document.getElementById('notif-badge');
+            badge.textContent = '';
+            badge.classList.add('hidden');
+            
+            // TODO: En un futuro, deberías hacer un batch write
+            // para actualizar el flag 'isRead' en Firestore.
         }
 
 
@@ -719,10 +728,12 @@
                     // Inicia el listener de comentarios para CADA post
                     initRealtimeComments(p.id);
                 });
+            }, (error) => {
+                console.error("Error en listener de Feed: ", error);
+                document.getElementById('postsContainer').innerHTML = `<p class="text-red-500 text-center">Error al cargar el feed.</p>`;
             });
 
             // 3. Listener para la cuadrícula de Videos (Pestaña "Videos")
-            // CORRECCIÓN (PROBLEMA 1): Usamos el flag 'isVideo' para la consulta
             const videosQuery = query(collection(db, `artifacts/${appId}/posts`), where("isVideo", "==", true), orderBy("timestamp", "desc"), limit(21));
             unsubscribeVideos = onSnapshot(videosQuery, (snap) => {
                 const container = document.getElementById('videos-grid');
@@ -737,6 +748,9 @@
                     el.innerHTML = renderVideoThumbnail(v);
                     container.appendChild(el.firstChild);
                 });
+            }, (error) => {
+                console.error("Error en listener de Videos: ", error);
+                document.getElementById('videos-grid').innerHTML = `<p class="text-red-500 text-center">Error al cargar videos.</p>`;
             });
 
             // 4. Listener para Notificaciones
@@ -769,6 +783,8 @@
                 } else {
                     badge.classList.add('hidden');
                 }
+            }, (error) => {
+                console.error("Error en listener de Notificaciones: ", error);
             });
         }
 
@@ -793,10 +809,12 @@
                     `;
                     container.appendChild(document.createRange().createContextualFragment(commentHtml));
                 });
+            }, (error) => {
+                console.error(`Error en listener de Comentarios (Post ${postId}): `, error);
             });
         }
 
-        // --- LÓGICA DE MOTOR LAB (IA) (PROBLEMA 2 CORREGIDO) ---
+        // --- LÓGICA DE MOTOR LAB (IA) ---
         const motorLabLogic = (function() {
             let inputElement, outputElement, loadingElement, executeButton;
 
@@ -812,25 +830,22 @@
                 outputElement.scrollTop = outputElement.scrollHeight;
             }
             
-            // CORRECCIÓN: Implementación de reintento (Exponential Backoff)
+            // Función de reintento (Exponential Backoff)
             async function fetchWithBackoff(url, options, maxRetries = 4) {
                 for (let i = 0; i < maxRetries; i++) {
                     try {
                         const response = await fetch(url, options);
                         if (!response.ok) {
-                            // Si es un error de "Too Many Requests" (429), reintenta
-                            if (response.status === 429 && i < maxRetries - 1) {
+                            if (response.status === 429 && i < maxRetries - 1) { // Too Many Requests
                                 const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
-                                // No loguear reintentos de '429' en la consola
                                 await new Promise(resolve => setTimeout(resolve, delay));
                                 continue;
                             }
-                            // Para otros errores (ej. 403 Forbidden), lanza el error
                             throw new Error(`HTTP error! status: ${response.status}`);
                         }
                         return response; // Éxito
                     } catch (error) {
-                        if (i === maxRetries - 1) throw error; // Falla después de todos los reintentos
+                        if (i === maxRetries - 1) throw error; 
                     }
                 }
             }
@@ -861,7 +876,6 @@
                     
                     const result = await response.json();
                     
-                    // CORRECCIÓN: Mejor manejo de errores de la API
                     if (result.error) {
                         throw new Error(result.error.message);
                     }
@@ -895,13 +909,11 @@
                         outputElement.appendChild(sourcesEl);
                     }
 
-                } catch (error) { // FIX: Se removió el texto accidental 'Read-Only' y se añadió la llave de apertura '{'
-                
+                } catch (error) {                 
                     console.error("Error al llamar a Gemini API:", error);
-                    // Mensaje de error para el usuario
                     let userErrorMessage = `Error de conexión o timeout. Intente de nuevo.`;
-                    if (error.message.includes("403")) {
-                        userErrorMessage = "Error de API (403): Acceso prohibido. Revisa las restricciones de tu API Key (Referentes HTTP).";
+                    if (error.message.includes("4CSS")) {
+                        userErrorMessage = "Error de API (403): Acceso prohibido. Revisa las restricciones de tu API Key (Sitios web).";
                     } else if (error.message.includes("400")) {
                         userErrorMessage = "Error de API (400): Solicitud incorrecta. Revisa el modelo de IA o la API Key.";
                     }
@@ -936,6 +948,7 @@
         window.toggleLikePost = toggleLikePost;
         window.handleCommentSubmit = handleCommentSubmit;
         window.buyCoins = buyCoins;
+        window.playVideo = playVideo; // Exponer la función de reproducir video
 
         // --- ARRANQUE INICIAL ---
         setupCharCounter(); // Configura el contador de caracteres del feed
